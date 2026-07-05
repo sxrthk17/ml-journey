@@ -1,0 +1,1 @@
+This readme consists of week2 journey
