@@ -98,3 +98,6 @@ def model_sum_of_squares(y_true, y_pred):
 def sum_of_squared_error(y_true, y_pred):
     y_true, y_pred = _validate_predictions(y_true, y_pred)
     return np.sum((y_true - y_pred) ** 2)
+
+def calculate_metrics(y_true, y_pred):
+    pass
