@@ -1,1 +1,1 @@
-
+the src folder has all the source helper functions and classes generated throughout the projects development.
