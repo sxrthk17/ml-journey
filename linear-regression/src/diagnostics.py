@@ -2,7 +2,8 @@ import numpy as np
 import scipy.stats as stats
 import matplotlib.pyplot as plt
 import pandas as pd
-
+import pandas as pd
+import matplotlib.pyplot as plt
 
 def residual_fitted_plot(y_pred, residuals):
     plt.figure(figsize=(6,5))
@@ -74,3 +75,46 @@ def residual_by_predictors_plot(X, residual):
             plt.ylabel("Residuals")
             plt.tight_layout()
             plt.show()
+
+def average_residual_spread_by_hour(hr_val, residual):
+    hourly_summary = (
+        pd.DataFrame({'hr': hr_val, 'residual': residual})
+        .groupby('hr').agg(mean_residual=('residual', 'mean'),
+                        std_residual=('residual', 'std')).reset_index()
+    )
+
+    
+    plt.figure(figsize=(12, 6))
+
+    plt.plot(
+    hourly_summary['hr'],
+    hourly_summary['mean_residual'],
+    marker='o',
+    color='crimson',
+    linewidth=2,
+    label='Mean Residual',)
+
+    plt.fill_between(
+        hourly_summary['hr'],
+        hourly_summary['mean_residual'] - hourly_summary['std_residual'],
+        hourly_summary['mean_residual'] + hourly_summary['std_residual'],
+        color='crimson',
+        alpha=0.2,
+        label='±1 Std Dev Spread',
+    )
+
+    plt.axhline(
+        0, color='black', linestyle='--', linewidth=1, label='Zero Error Line'
+    )
+
+    plt.title(
+        'Residual Spread by Hour of Day (One-Hot Model Validation Set)',
+        fontsize=12,
+        fontweight='bold',
+    )
+    plt.xlabel('Hour of Day', fontsize=10)
+    plt.ylabel('Residual (Actual - Predicted)', fontsize=10)
+    plt.xticks(range(24))
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
