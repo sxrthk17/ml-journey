@@ -1,5 +1,7 @@
 import numpy as np
-
+from src.metrics import r2_score, adjusted_r2score, mse, mean_absolute_error, root_mse, sum_of_squared_error, total_sum_of_squares, model_sum_of_squares, standard_error
+from sklearn.preprocessing import OneHotEncoder
+import pandas as pd
 #====================================================================================
 # SIMPLE LINEAR REGRESSION
 #====================================================================================
@@ -367,3 +369,37 @@ class SGDLinearRegression():
             return 0
 
         return 1 - (sse/sst)
+
+
+
+def evaluate_variant(X_tr, y_tr, X_val, y_val):
+        model = MultipleLinearRegression()
+        model.fit(X_tr, y_tr)
+        y_pred = model.predict(X_val)
+        beta_hat = model.beta_hat
+
+        mse_= mse(y_val, y_pred)
+        mae= mean_absolute_error(y_val, y_pred)
+        rmse= root_mse(y_val, y_pred)
+        r2_score_= r2_score(y_val, y_pred)
+        adj_r2 = adjusted_r2score(X_val, y_val, y_pred)
+        sse= sum_of_squared_error(y_val, y_pred)
+        sst= total_sum_of_squares(y_val)
+        ssm = model_sum_of_squares(y_val, y_pred)
+        metrics_dict ={
+                "MSE": mse_,
+                "MAE": mae,
+                "RMSE": rmse,
+                "R2": r2_score_,
+                "Adjusted_R2": adj_r2,
+                "SSE": sse,
+                "SST": sst,
+                "SSM": ssm,}
+
+        metrics_df = pd.DataFrame(metrics_dict, index=[0])
+        
+        summary_stats = pd.DataFrame(standard_error(X_tr, y_tr))
+        index = ['Intercept']
+        index.extend(X_tr.columns)
+        summary_stats.index = index
+        return metrics_df, summary_stats, y_pred, y_val
