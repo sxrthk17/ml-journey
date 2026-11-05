@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.stats as stats
 
 def _validate_y(y_true):
     y_true = np.asarray(y_true)
@@ -101,3 +102,52 @@ def sum_of_squared_error(y_true, y_pred):
 
 def calculate_metrics(y_true, y_pred):
     pass
+
+
+def standard_error(X, y):
+
+    X = np.asarray(X, dtype=float)
+    y = np.asarray(y, dtype=float).reshape(-1)
+
+    n = len(y)
+
+    X = np.column_stack([np.ones(n), X])
+
+    p = X.shape[1] - 1
+
+    XTX_inv = np.linalg.pinv(X.T @ X)
+
+    beta_hat = XTX_inv @ X.T @ y
+
+    residuals = y - (X @ beta_hat)
+
+    SSE = np.sum(residuals ** 2)
+
+    df = n - p - 1
+
+    if df <= 0:
+        raise ValueError("Insufficient degrees of freedom")
+
+    hat_sigma_sq = SSE / df
+
+    cov_beta = hat_sigma_sq * XTX_inv
+
+    SE = np.sqrt(np.diag(cov_beta))
+
+    t_stats = beta_hat / SE
+
+    p_values = 2 * (1 - stats.t.cdf(np.abs(t_stats), df=df))
+
+    t_crit = stats.t.ppf(0.975, df=df)
+
+    ci_lower = beta_hat - t_crit * SE
+    ci_upper = beta_hat + t_crit * SE
+
+    return {
+        "Beta Hat": beta_hat,
+        "Standard Error": SE,
+        "t_stats": t_stats,
+        "p_values": p_values,
+        "CI lower": ci_lower,
+        "CI upper": ci_upper
+    }
