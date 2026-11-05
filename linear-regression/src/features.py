@@ -1,7 +1,10 @@
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
+#----------------------------------------------
 
 def one_hot_encode(X_train, X_test, columns=[]):
     if not columns:
@@ -23,6 +26,8 @@ def one_hot_encode(X_train, X_test, columns=[]):
 
     return X_train, X_test
 
+#----------------------------------------------
+
 def split_sets_tr_val(X_train, y_train, feature_cols):
 
     split_idx = int(len(X_train) * 0.8)
@@ -34,16 +39,9 @@ def split_sets_tr_val(X_train, y_train, feature_cols):
 
     return X_tr, y_tr, X_val, y_val
 
+#----------------------------------------------
 
-
-
-
-
-
-
-
-
-def clean_and_preprocess_data(df, target_cols=['cnt']):
+def clean_and_preprocess_data(df, target_cols=['cnt'], feature_cols=None):
     '''
     The dataset comes uncleaned, raw and full of skewked distribution,
     my goal here is to design a helper function, that takes in,
@@ -53,8 +51,19 @@ def clean_and_preprocess_data(df, target_cols=['cnt']):
     apply transformation on X and y train val sets, and hald them back to users!
     assuming X has features and not target variables, but still confirming.
     '''
-    X = df.drop(columns=[target_cols]).copy()
-    y = df[target_cols].copy(x)
+    if isinstance(target_cols, str):
+            target_cols = [target_cols]
+
+    if feature_cols is None:
+        feature_cols = [
+            "holiday", "yr", "season", "weathersit",
+            "hr", "atemp", "hum", "windspeed"
+        ]
+
+    X = df.drop(columns=target_cols).copy()
+    
+    y = df[target_cols].copy()
+
 
     if 'weathersit' in X.columns:
         X['weathersit'] = X['weathersit'].replace(4, 3)
@@ -70,9 +79,7 @@ def clean_and_preprocess_data(df, target_cols=['cnt']):
     y_tr = y_train.iloc[ :split_idx ].copy()
     y_val = y_train.iloc[split_idx: ].copy()
 
-    features = ["holiday", "yr", "season", 
-                "weathersit", "hr", "atemp",
-                "hum", "windspeed"]
+    features = feature_cols
 
     X_tr = X_tr[features]
     X_val = X_val[features]
@@ -81,12 +88,35 @@ def clean_and_preprocess_data(df, target_cols=['cnt']):
     cat_cols = ['season', 'weathersit', 'hr']
     X_tr, X_val = one_hot_encode(X_tr, X_val, columns=cat_cols)
 
-    y_tr_log = np.log1p(y_tr)
+    y_tr_log, y_val_log = target_logger(y_tr, y_val)
 
-    return X_tr, y_tr_log, X_val, y_val
+    return X_tr, y_tr_log, X_val, y_val_log
 
 
+#----------------------------------------------
 
+def target_logger(y_train, y_test):
+    y_train = np.log1p(y_train)
+    y_test = np.log1p(y_test)
+
+    return y_train, y_test
+
+
+#----------------------------------------------
+def compute_vif(X):
+    scaler = StandardScaler()
+    Z = scaler.fit_transform(X)
+    n = X.shape[0]
+    
+    #correlation matrix R
+    # R = (1/n-1) * Z.T @ Z fell into a classic python operator precedence trap !!
+    R = (1/(n-1)) * Z.T @ Z
+    #invert r to get c
+    C = np.linalg.pinv(R)
+
+    VIF_score = np.diag(C)
+    return pd.DataFrame(VIF_score, index=X.columns).rename(columns={0: "VIF"})
+#----------------------------------------------
 
 
 
