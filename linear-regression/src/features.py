@@ -41,7 +41,7 @@ def split_sets_tr_val(X_train, y_train, feature_cols):
 
 #----------------------------------------------
 
-def clean_and_preprocess_data(df, target_cols=['cnt'], feature_cols=None):
+def clean_and_preprocess_data(df, target_cols=['cnt'], feature_cols=None, cat_cols=None):
     '''
     The dataset comes uncleaned, raw and full of skewked distribution,
     my goal here is to design a helper function, that takes in,
@@ -85,7 +85,7 @@ def clean_and_preprocess_data(df, target_cols=['cnt'], feature_cols=None):
     X_val = X_val[features]
 
 
-    cat_cols = ['season', 'weathersit', 'hr']
+    cat_cols = cat_cols if cat_cols is not None else ['season', 'weathersit', 'hr']
     X_tr, X_val = one_hot_encode(X_tr, X_val, columns=cat_cols)
 
     y_tr_log, y_val_log = target_logger(y_tr, y_val)
