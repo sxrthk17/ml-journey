@@ -378,9 +378,12 @@ def evaluate_variant(X_tr, y_tr, X_val, y_val):
         y_pred = model.predict(X_val)
         beta_hat = model.beta_hat
 
+
+        y_train_pred = model.predict(X_tr)
         mse_= mse(y_val, y_pred)
         mae= mean_absolute_error(y_val, y_pred)
         rmse= root_mse(y_val, y_pred)
+        train_r2_score = r2_score(y_tr, y_train_pred)
         r2_score_= r2_score(y_val, y_pred)
         adj_r2 = adjusted_r2score(X_val, y_val, y_pred)
         sse= sum_of_squared_error(y_val, y_pred)
@@ -390,8 +393,9 @@ def evaluate_variant(X_tr, y_tr, X_val, y_val):
                 "MSE": mse_,
                 "MAE": mae,
                 "RMSE": rmse,
-                "R2": r2_score_,
-                "Adjusted_R2": adj_r2,
+                "Val R2": r2_score_,
+                "Train R2":train_r2_score,
+                "Adjusted_R2_Val": adj_r2,
                 "SSE": sse,
                 "SST": sst,
                 "SSM": ssm,}
