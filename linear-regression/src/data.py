@@ -39,3 +39,7 @@ def train_test_split(x, y, test_size: float):
     y_test = [item[1] for item in test_data]
     
     return x_train, y_train, x_test, y_test
+
+
+
+
