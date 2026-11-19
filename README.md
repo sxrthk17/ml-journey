@@ -4,3 +4,5 @@ Hey guys, in this repo i am trying to replicate every famour Machine Learning Al
 two resources i am currently following are: Introduction to Statisical Learning (python) and Hands-On machine learning !! 
 
 Would update more !! 
+
+exam day push
